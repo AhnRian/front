@@ -4,7 +4,6 @@ import * as S from './FaceRegistration.style';
 import Webcam from 'react-webcam';
 import { faceRegister } from '../../api/face/faceRegister';
 import { Toast } from '../../components/common/toast/Toast';
-import { useNavigate } from 'react-router-dom';
 import { faceMsg, ToastState } from '../../constant/faceMsg';
 import Loading from '../../components/common/loading/Loading';
 
@@ -13,7 +12,6 @@ const FaceRegistration = () => {
   const [hasCaptured, setHasCaptured] = useState(false);
   const [faceState, setFaceState] = useState<ToastState>('default');
   const [isCameraVisible, setIsCameraVisible] = useState(true);
-  const navigate = useNavigate();
 
   const handleFaceDetected = (captureImage: () => void) => {
     if (!hasCaptured) {
@@ -47,7 +45,13 @@ const FaceRegistration = () => {
   }, [hasCaptured]);
 
   useEffect(() => {
-    if (!isCameraVisible) navigate('/profile');
+    if (!isCameraVisible) {
+      const video = webcamRef.current?.video;
+      const stream = video?.srcObject as MediaStream;
+      stream?.getTracks().forEach((track) => track.stop());
+
+      window.location.href = '/profile';
+    }
   }, [isCameraVisible]);
 
   const { isLoading, isFaceInside, isVideoLoaded, capturedImage } =
